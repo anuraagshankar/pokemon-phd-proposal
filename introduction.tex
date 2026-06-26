@@ -5,5 +5,133 @@
 \section{Introduction}
 \label{sec:introduction}
 
-% TODO: Draft introduction
+To most people, Pok\'{e}mon is the single-player adventure of catching creatures
+and working through a story campaign. Running alongside it, however, is a whole
+parallel track of \emph{competitive} Pok\'{e}mon, where two human players battle
+each other under tournament rules. It is this competitive track, not the
+single-player game, that this study is concerned with.
 
+\subsection{Competitive Pok\'{e}mon and the VGC Format}
+
+Competitive Pok\'{e}mon is a far harder game than the single-player campaign
+suggests. It is played in two main formats:
+
+\begin{itemize}
+  \item \textbf{Singles:} one active Pok\'{e}mon per side; the basis of the
+        community-run ladders.
+  \item \textbf{Doubles:} two of a player's Pok\'{e}mon on the field at once,
+        each able to act on, support, or target either opponent. This is the
+        format of the official \emph{Pok\'{e}mon Video Game Championships} (VGC),
+        run by The Pok\'{e}mon Company and contested at Regional, International,
+        and World Championship level.
+\end{itemize}
+
+VGC defines official, top-level human play, so it is the only setting in which
+``superhuman'' performance is a well-posed target. For that reason it is the
+sole focus of this study; other formats appear only for comparison. Its rules
+make VGC a partial-information game with simultaneous moves, not the
+full-information, take-turns game its surface presentation suggests~\cite{traylor_vgc}:
+
+\begin{itemize}
+  \item A team has six Pok\'{e}mon, but only four are brought into any battle.
+  \item The opponent's four-from-six selection is hidden until revealed in play;
+        the two benched Pok\'{e}mon are never seen.
+  \item Both players choose moves at the same time each turn, with no alternating
+        turn order.
+  \item At official tournaments, \emph{Open Team Sheets} disclose full movesets,
+        items, abilities, and Terastal types before the match, but lead selection
+        and in-battle plans stay hidden.
+\end{itemize}
+
+\subsection{A Unified Competitive Platform: Pok\'{e}mon Champions}
+
+\begin{itemize}
+  \item Historically, VGC was hosted on whichever mainline role-playing title was
+        current, so competitive tools were built on top of games not designed for
+        them, and the metagame moved generation to generation.
+  \item \emph{Pok\'{e}mon Champions} (developed by The Pok\'{e}mon Works;
+        published by The Pok\'{e}mon Company and Nintendo) is a dedicated
+        competitive battle simulator, released on Nintendo Switch in April 2026
+        and on iOS and Android in June 2026~\cite{pokemon_champions_wiki}.
+  \item It is set to replace the mainline titles as the official VGC tournament
+        platform~\cite{pokemon_champions_official}, giving competitive Pok\'{e}mon
+        a single purpose-built platform and a more stable base than the
+        rotating-cartridge approach it replaces.
+\end{itemize}
+
+\subsection{The Two Phases of Competitive Pok\'{e}mon}
+
+Competitive Pok\'{e}mon is a repeating, two-stage game~\cite{traylor_vgc}:
+
+\begin{itemize}
+  \item \textbf{Team building} (planning): select and fully customize a roster of
+        six Pok\'{e}mon from a pool of over a thousand species and hundreds of
+        moves, items, and abilities.
+  \item \textbf{Battling} (execution): put those choices into play against an
+        opponent.
+\end{itemize}
+
+The two cannot be cleanly separated: a good team requires knowing how battles are
+won, and winning battles requires a well-built team. This study focuses on the
+\textbf{battling} phase, the in-battle decision problem given a fixed team. Team
+building, a vast and metagame-dependent optimization problem of its own, is
+treated as a separate, later concern and discussed only where it affects
+battling.
+
+\subsection{The Four Strategic Pillars of Battling}
+
+Following Traylor~\cite{traylor_vgc}, high-level VGC battling demands four parts
+of game theory at once:
+
+\begin{itemize}
+  \item \textbf{Long-term planning.} As in chess, resources shrink as Pok\'{e}mon
+        are knocked out. Early actions shape later board states, so the
+        highest-damage move now is often worse than one that improves position.
+        A zero-damage move, such as sacrificing a Pok\'{e}mon to set up a
+        speed-doubling effect, can decide the game several turns later.
+  \item \textbf{Simultaneous action selection.} Both players choose moves without
+        seeing the opponent's choice, then resolve together, adding a
+        rock--paper--scissors guessing element. Mechanics like Terastallization
+        (an on-command type change, once per battle) turn these blind choices into
+        a branching set of outcomes, not a single flat decision.
+  \item \textbf{Imperfect information.} A player acts knowing two unrevealed
+        Pok\'{e}mon wait on the opponent's bench, and that revealed Pok\'{e}mon
+        may carry unexpected moves or items. Open Team Sheets help but do not
+        remove this: lead selection, benched threats, and in-battle plans stay
+        hidden.
+  \item \textbf{Probability management.} Move accuracy, secondary effects (e.g.
+        status), critical hits, and damage rolls all inject chance. Strong play
+        is not avoiding chance but managing it, choosing lines that hold up across
+        the range of possible results.
+\end{itemize}
+
+What sets VGC apart is that all four pillars are present \emph{at the same time}.
+Benchmark games isolate only some: chess demands long-term planning but under full
+information and turn order; poker combines imperfect information with chance but is
+turn-based. VGC sits at the meeting point of all four~\cite{traylor_vgc}, and, as
+this document argues, no solved benchmark game shares that combination.
+
+\subsection{Thesis and Research Questions}
+
+This document is a feasibility study asking whether superhuman performance in
+Pok\'{e}mon VGC is an achievable and worthwhile target for doctoral research. It
+does not yet commit to a method; it describes the problem, surveys what has been
+tried, and assesses where the open frontier lies. It is organized around three
+core questions:
+
+\begin{enumerate}
+  \item \textbf{Complexity.} How computationally and strategically complex is
+        Pok\'{e}mon VGC as a problem domain, and how does that complexity compare
+        with that of strategy games already studied in AI?
+  \item \textbf{Existing work.} What prior research exists on AI agents for
+        competitive Pok\'{e}mon, and on similar imperfect-information,
+        simultaneous-action games such as poker, Stratego, and StarCraft~II?
+  \item \textbf{Gap analysis.} If superhuman VGC performance has not been
+        achieved, why not, and what would it take to close that gap?
+\end{enumerate}
+
+The rest of this document is structured as follows.
+Section~\ref{sec:existing_research} reviews the existing research on competitive
+Pok\'{e}mon AI and on similar game-AI systems.
+Section~\ref{sec:analysis} analyzes the complexity of the domain, draws out the
+gap that the prior work leaves open, and assesses how feasible it is to close it.

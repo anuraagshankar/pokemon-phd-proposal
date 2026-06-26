@@ -82,8 +82,9 @@
 % Custom title page
 % ---------------------------------------------------------------------------
 \renewcommand{\maketitle}{%
+  \thispagestyle{empty}%
+  \vspace*{\fill}
   \begin{center}
-    \vspace*{1cm}
     \pokeball
     \vspace{0.8cm}
 
@@ -97,14 +98,15 @@
 
     \vspace{0.8cm}
     \pokeball
-    \vspace{0.6cm}
   \end{center}%
+  \vspace*{\fill}
 }
 
 % ---------------------------------------------------------------------------
 \begin{document}
 
 \maketitle
+\newpage
 
 \tableofcontents
 \newpage
