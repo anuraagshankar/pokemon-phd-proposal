@@ -72,11 +72,13 @@ Competitive Pok\'{e}mon is a repeating, two-stage game~\cite{traylor_vgc}:
 \end{itemize}
 
 The two cannot be cleanly separated: a good team requires knowing how battles are
-won, and winning battles requires a well-built team. This study focuses on the
-\textbf{battling} phase, the in-battle decision problem given a fixed team. Team
-building, a vast and metagame-dependent optimization problem of its own, is
-treated as a separate, later concern and discussed only where it affects
-battling.
+won, and winning battles requires a well-built team. The two phases nest. Battling
+is the inner problem of playing a fixed pair of teams well, and team building is
+the outer problem of choosing a team whose value is set by how it fares in those
+battles. This study treats the full coupled problem as its framing, but commits
+firmly to the inner phase and reaches into team building as far as is feasible,
+rather than promising to solve the outer problem in full. Section~\ref{sec:analysis}
+develops this nesting and the bound on how much of it one project can claim.
 
 \subsection{The Four Strategic Pillars of Battling}
 
@@ -114,10 +116,11 @@ this document argues, no solved benchmark game shares that combination.
 \subsection{Thesis and Research Questions}
 
 This document is a feasibility study asking whether superhuman performance in
-Pok\'{e}mon VGC is an achievable and worthwhile target for doctoral research. It
-does not yet commit to a method; it describes the problem, surveys what has been
-tried, and assesses where the open frontier lies. It is organized around three
-core questions:
+Pok\'{e}mon VGC is an achievable and worthwhile target for doctoral research,
+across both the battling and team-building phases described above and the way they
+nest. It does not yet commit to a method; it describes the problem, surveys what
+has been tried, and assesses where the open frontier lies. It is organized around
+three core questions:
 
 \begin{enumerate}
   \item \textbf{Complexity.} How computationally and strategically complex is
