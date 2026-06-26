@@ -1,26 +1,110 @@
 \documentclass[12pt]{article}
 
+% --- Geometry & spacing ---
 \usepackage[margin=1in]{geometry}
-\usepackage{amsmath, amssymb, amsthm}
-\usepackage{hyperref}
-\usepackage{booktabs}
-\usepackage{cite}
 \usepackage{setspace}
-
 \doublespacing
 
-\title{Toward Superhuman Performance in Pok\'{e}mon Video Game Championships:\\
-A Deep Reinforcement Learning Feasibility Study}
-\author{Anuraag Shankar}
-\date{\today}
+% --- Font ---
+\usepackage[T1]{fontenc}
+\usepackage{mathpazo}
 
+% --- Math & symbols ---
+\usepackage{amsmath, amssymb, amsthm}
+
+% --- Tables ---
+\usepackage{booktabs}
+
+% --- Bibliography ---
+\usepackage{cite}
+
+% --- Color (single accent) ---
+\usepackage{xcolor}
+\definecolor{pokeRed}{RGB}{200, 30, 30}
+
+% --- TikZ (title-page decoration only) ---
+\usepackage{tikz}
+
+% --- Section headings ---
+\usepackage{titlesec}
+\titleformat{\section}
+  {\large\scshape}
+  {\thesection.}{0.6em}{}
+  [{\color{black}\vspace{1pt}\hrule height 0.4pt\vspace{1pt}}]
+\titleformat{\subsection}
+  {\normalsize\scshape}
+  {\thesubsection.}{0.6em}{}
+
+% --- Hyperref (monochrome: all links black) ---
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  citecolor=black,
+  urlcolor=black,
+  filecolor=black
+}
+
+% ---------------------------------------------------------------------------
+% Pokeball decorative rule: full-width rule with a medallion at the center.
+% Red upper half, black lower half, white center circle -- single red accent.
+% ---------------------------------------------------------------------------
+\newcommand{\pokeball}{%
+  \begin{center}
+    \begin{tikzpicture}
+      \def\R{0.38}
+      \def\r{0.14}
+      \def\halfgap{0.52}
+
+      % Left rule segment
+      \draw[line width=0.4pt, black]
+        (-\textwidth/2 + 1pt, 0) -- (-\halfgap cm, 0);
+      % Right rule segment
+      \draw[line width=0.4pt, black]
+        (\halfgap cm, 0) -- (\textwidth/2 - 1pt, 0);
+
+      % Red upper semicircle
+      \fill[pokeRed]  (-\R cm, 0) arc (180:0:\R cm) -- cycle;
+      % Black lower semicircle
+      \fill[black]    (-\R cm, 0) arc (-180:0:\R cm) -- cycle;
+      % White dividing stripe
+      \draw[white, line width=1.4pt] (-\R cm, 0) -- (\R cm, 0);
+      % Outer ring
+      \draw[black, line width=0.5pt] (0,0) circle (\R cm);
+      % Center button
+      \fill[white] (0,0) circle (\r cm);
+      \draw[black, line width=0.5pt] (0,0) circle (\r cm);
+    \end{tikzpicture}
+  \end{center}%
+}
+
+% ---------------------------------------------------------------------------
+% Custom title page
+% ---------------------------------------------------------------------------
+\renewcommand{\maketitle}{%
+  \begin{center}
+    \vspace*{1cm}
+    \pokeball
+    \vspace{0.8cm}
+
+    {\LARGE\scshape Toward Superhuman Performance in Pok\'{e}mon\\[0.3em]
+     Video Game Championships}\\[0.9em]
+    {\large A Deep Reinforcement Learning Feasibility Study}
+
+    \vspace{1.2cm}
+    {\normalsize Anuraag Shankar}\\[0.4em]
+    {\small\today}
+
+    \vspace{0.8cm}
+    \pokeball
+    \vspace{0.6cm}
+  \end{center}%
+}
+
+% ---------------------------------------------------------------------------
 \begin{document}
 
 \maketitle
-
-\begin{abstract}
-% TODO: Write abstract after all sections are drafted.
-\end{abstract}
 
 \tableofcontents
 \newpage
