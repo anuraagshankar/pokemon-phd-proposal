@@ -10,10 +10,16 @@
 This section surveys the work that a study of competitive Pok\'{e}mon AI must
 build on. It is a literature review only: it reports what has been done and what
 each system demonstrates, and it leaves the question of what remains undone to
-the analysis in Section~\ref{sec:analysis}. The survey is in four parts: the
-shared infrastructure on which recent work depends; the state of the art in
-competitive Pok\'{e}mon \emph{singles}; the smaller body of work that targets the
-VGC \emph{doubles} format directly; and landmark AI systems for analogous games.
+the analysis in Section~\ref{sec:analysis}. The survey is in four parts:
+
+\begin{enumerate}
+  \item the shared infrastructure on which recent work depends;
+  \item the state of the art in competitive Pok\'{e}mon \emph{singles};
+  \item the smaller body of work that targets the VGC \emph{doubles} format
+        directly; and
+  \item landmark AI systems for analogous games.
+\end{enumerate}
+
 The first three parts are presented as summary tables below; per-system detail is
 given in Appendix~\ref{sec:appendix_prior_work}.
 
@@ -23,6 +29,7 @@ two are studied very unevenly. The format of each system is therefore recorded
 explicitly, because it is the fact that most shapes how the prior work bears on a
 VGC study.
 
+\clearpage
 \subsection{Research Infrastructure}
 \label{subsec:infrastructure}
 
@@ -35,31 +42,31 @@ later and less completely.
 
 \begin{table}[ht]
 \small
-\renewcommand{\arraystretch}{1.2}
+\tablespacing
 \begin{tabularx}{\textwidth}{@{}>{\hsize=0.85\hsize\raggedright\arraybackslash}X
                                 >{\hsize=0.75\hsize\raggedright\arraybackslash}X
                                 >{\hsize=1.40\hsize\raggedright\arraybackslash}X@{}}
 \toprule
 \textbf{System} & \textbf{Type} & \textbf{Role in research} \\
 \midrule
-Pok\'{e}mon Showdown~\cite{pokemon_showdown}
+Pok\'{e}mon Showdown \cite{pokemon_showdown}
   & Battle simulator
   & Open-source reimplementation of game mechanics; online ladders, logs, and
     replays for nearly every format, including doubles. The de facto research
     environment; an approximation of the official games. \\
 \addlinespace
-poke-env~\cite{poke_env}
+poke-env \cite{poke_env}
   & Python interface
   & Connects agents to Showdown to read state and submit actions. Underpins most
     systems below. Built for singles; doubles and VGC support added later, per
     project. \\
 \addlinespace
-Showdown AI Competition~\cite{lee2017showdown}
+Showdown AI Competition \cite{lee2017showdown}
   & Benchmark (2017)
   & Established Showdown singles as an AI research challenge and built early
     agent infrastructure. \\
 \addlinespace
-PokeAgent Challenge~\cite{karten2025pokeagent}
+PokeAgent Challenge \cite{karten2025pokeagent}
   & Benchmark (NeurIPS 2025)
   & Two tracks (Showdown battling; single-player speedrunning); 20M+ battle
     trajectories, baseline agents, and 100+ competing teams. Battling track
@@ -70,6 +77,7 @@ PokeAgent Challenge~\cite{karten2025pokeagent}
 \label{tab:infrastructure}
 \end{table}
 
+\clearpage
 \subsection{Competitive Pok\'{e}mon Singles: State of the Art}
 \label{subsec:singles}
 
@@ -81,7 +89,7 @@ guided by learned or language-model priors. Every entry targets singles.
 
 \begin{table}[ht]
 \small
-\renewcommand{\arraystretch}{1.2}
+\tablespacing
 \begin{tabularx}{\textwidth}{@{}>{\hsize=0.62\hsize\raggedright\arraybackslash}X
                                 >{\hsize=1.30\hsize\raggedright\arraybackslash}X
                                 >{\hsize=0.58\hsize\raggedright\arraybackslash}X
@@ -89,28 +97,28 @@ guided by learned or language-model priors. Every entry targets singles.
 \toprule
 \textbf{System} & \textbf{Method} & \textbf{Format} & \textbf{Key result} \\
 \midrule
-Metamon~\cite{grigsby2025metamon}
+Metamon \cite{grigsby2025metamon}
   & Offline RL + imitation; Transformer policies up to 200M parameters, trained
     from human replays reconstructed into first-person trajectories
   & Singles (Gen 1--4)
   & Best agents climb into the top 10\% of active players on the Showdown ladder.
     Closest method analog to a deep-learning VGC approach. \\
 \addlinespace
-Pok\'{e}Champ~\cite{karten2025pokechamp}
+Pok\'{e}Champ \cite{karten2025pokechamp}
   & Minimax search with LLM-based action proposal, opponent modeling, and value
     estimation; no Pok\'{e}mon-specific training
   & Singles (Gen 9 OU)
   & Strong win rates against prior LLM and rule-based agents; compiles a large
     human-game dataset. Evidence for a search + learned-prior hybrid. \\
 \addlinespace
-Pok\'{e}LLMon~\cite{hu2024pokellmon}
+Pok\'{e}LLMon \cite{hu2024pokellmon}
   & LLM agent: in-context learning, knowledge-augmented generation, action
     consistency
   & Singles
   & First LLM agent to reach human parity (about an even ladder win rate).
     Foundational for the LLM line; modest strength. \\
 \addlinespace
-Earlier self-play / search agents~\cite{lee2017showdown}
+Earlier self-play / search agents \cite{lee2017showdown}
   & Self-play RL and search on Showdown
   & Singles
   & Pre-LLM baselines; established the target but did not reach the strength
@@ -121,6 +129,7 @@ Earlier self-play / search agents~\cite{lee2017showdown}
 \label{tab:singles}
 \end{table}
 
+\clearpage
 \subsection{Dedicated VGC (Doubles) Work}
 \label{subsec:vgc}
 
@@ -132,7 +141,7 @@ model, the distinction that governs how directly its results transfer.
 
 \begin{table}[ht]
 \small
-\renewcommand{\arraystretch}{1.2}
+\tablespacing
 \begin{tabularx}{\textwidth}{@{}>{\hsize=0.62\hsize\raggedright\arraybackslash}X
                                 >{\hsize=1.18\hsize\raggedright\arraybackslash}X
                                 >{\hsize=0.70\hsize\raggedright\arraybackslash}X
@@ -140,7 +149,7 @@ model, the distinction that governs how directly its results transfer.
 \toprule
 \textbf{System} & \textbf{Method} & \textbf{Scope} & \textbf{Key finding} \\
 \midrule
-VGC-Bench~\cite{angliss2026vgcbench}
+VGC-Bench \cite{angliss2026vgcbench}
   & Benchmark on poke-env (with PettingZoo); heuristic, LLM, behavior-cloning, and
     multi-agent RL baselines (self-play, fictitious play, double oracle)
   & Real engine; team \emph{usage} only
@@ -149,14 +158,14 @@ VGC-Bench~\cite{angliss2026vgcbench}
     drops and exploitability rises as the training-team set grows. The anchor
     reference. \\
 \addlinespace
-Reis--Lau line~\cite{reis2021vgccompetition,reis2023adversarial}
+Reis--Lau line \cite{reis2021vgccompetition,reis2023adversarial}
   & Competition framework (team selection, battling, team building, balance);
     adversarial team-builder vs. balancer loop
   & Abstracted model
   & Treats team building and metagame balance as explicit AI objectives. Speaks
     to framing more than real-game battle strength. \\
 \addlinespace
-Rodriguez et al.~\cite{rodriguez2024neuroevolution}
+Rodriguez et al. \cite{rodriguez2024neuroevolution}
   & Deep RL + neuroevolution; move-suggestion tool; diversity promotion
   & Real engine
   & On-format doubles agents at smaller scale than VGC-Bench; confirms the real
@@ -168,89 +177,211 @@ game engine from an abstracted Pok\'{e}mon model.}
 \label{tab:vgc}
 \end{table}
 
+\clearpage
 \subsection{Analogous Games and Their AI Systems}
 \label{subsec:analogous}
 
-VGC's difficulty comes from combining four strategic properties at once
-(long-horizon planning, simultaneous action, imperfect information, and
-stochasticity), as set out in Section~\ref{sec:introduction}. No single solved
-game combines all four, but several landmark systems each solved a game that
-shares one or more of them, and these are the systems whose methods a VGC study
-would draw on. They are reviewed here as methodological precedent; the argument
-that none of them covers VGC's full combination is developed in
+VGC's difficulty comes from combining four strategic properties at once, as set
+out in Section~\ref{sec:introduction}:
+
+\begin{enumerate}
+  \item long-horizon planning;
+  \item simultaneous action;
+  \item imperfect information; and
+  \item stochasticity.
+\end{enumerate}
+
+No single solved game combines all four, but several landmark systems each solved
+a game that shares one or more of them, and these are the systems whose methods a
+VGC study would draw on. They are grouped below by strategic theme; each group's
+heading and caption list the pillars its systems exercise, by the numbers above,
+and each table gives one row per system. The notation $2^{*}$ marks a weaker form
+of pillar~2: real-time concurrency, where both players act at once but without the
+blind simultaneous commitment (and resulting matrix-game mixed strategies) that
+true pillar~2 requires. They are reviewed here as methodological precedent; the
+argument that none of them covers VGC's full combination is developed in
 Section~\ref{sec:analysis}.
 
-\paragraph{Perfect-information self-play (AlphaGo and AlphaZero).}
-AlphaGo first reached superhuman strength in Go by combining deep neural networks
-with Monte Carlo tree search~\cite{silver2016alphago}, and AlphaZero generalized
-the recipe to chess, shogi, and Go from self-play alone, with no human data and
-no domain knowledge beyond the rules~\cite{silver2018alphazero}. This is the
-canonical demonstration that self-play plus search can produce superhuman play,
-and it is the natural first analogy for any new game. Its setting, however, is the
-opposite of VGC's on three of the four pillars: Go and chess are
-perfect-information, deterministic, and strictly turn-based. The transferable
-lesson is the self-play-with-search paradigm itself, not the specific algorithm.
+\subsubsection{(1) Perfect-information self-play}
+\label{subsubsec:analog_selfplay}
 
-\paragraph{Imperfect information and search (poker: Libratus, NFSP, ReBeL).}
-Poker is the canonical imperfect-information benchmark and is in several respects a
-closer analogy than Go. Libratus reached superhuman play in heads-up no-limit
-Texas hold'em, demonstrating that an equilibrium-seeking agent can beat top
-professionals in a game of hidden information and chance~\cite{brown2017libratus}.
-Neural Fictitious Self-Play (NFSP) showed that deep reinforcement learning can
-approximate equilibrium strategies in imperfect-information games without
-hand-crafted abstractions~\cite{heinrich2016nfsp}, and ReBeL unified
-reinforcement learning with search for imperfect-information games, again reaching
-superhuman heads-up poker~\cite{brown2020rebel}. The lesson this line carries for
-VGC is that the right formal object is not a standard Markov decision process but
-an imperfect-information game in which the goal is an equilibrium (an
-unexploitable strategy), and that combining learning with search is a productive
-way to reach it. Poker is, however, strictly turn-based, so it does not exercise
-VGC's simultaneous-action structure.
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+AlphaGo \cite{silver2016alphago}
+  & Go
+  & Deep networks + Monte Carlo tree search
+  & First superhuman play by self-play plus search; the natural first analogy. \\
+\addlinespace
+AlphaZero \cite{silver2018alphazero}
+  & Chess, shogi, Go
+  & Self-play from the rules alone, no human data
+  & Confirms the self-play-with-search paradigm generalizes. But these games are
+    perfect-information, deterministic, and turn-based, the opposite of VGC on
+    pillars 2--4: the transferable lesson is the paradigm, not the algorithm. \\
+\bottomrule
+\end{tabularx}
+\caption{Perfect-information self-play (pillars exercised: 1).}
+\label{tab:analog_selfplay}
+\end{table}
 
-\paragraph{Large imperfect-information game trees (Stratego: DeepNash).}
-DeepNash reached expert human level in Stratego using model-free multi-agent
-reinforcement learning driven by a regularized form of Nash dynamics, without any
-explicit search~\cite{perolat2022deepnash}. Stratego is the closest cousin to VGC
-among solved games on the information axis: it has a very large
-imperfect-information game tree and rewards long-horizon deception. It shows that
-robust, near-equilibrium policies can be learned directly, even when the game is
-too large to search explicitly. It differs from VGC in being deterministic and
-strictly alternating, so it isolates the imperfect-information pillar without the
-stochastic and simultaneous-action pillars.
+\subsubsection{(1, 3, 4) Imperfect information and search (poker)}
+\label{subsubsec:analog_poker}
 
-\paragraph{Population-based training at scale (StarCraft II: AlphaStar).}
-AlphaStar reached grandmaster level in StarCraft II, a real-time game with a
-very large action space and partial observability through fog of
-war~\cite{vinyals2019alphastar}. Its most relevant contribution for VGC is
-structural rather than architectural: the \emph{league}, a population of agents,
-including dedicated ``exploiter'' agents that seek out and punish weaknesses in
-the main agents, trained against one another. This population structure is a
-response to the fact that naive self-play can overfit to its own strategies and
-cycle in games where strategies are non-transitive, a property VGC exhibits
-strongly. StarCraft II has long horizons and partial information but is essentially
-deterministic and is dominated by real-time mechanical execution, the axis on
-which VGC, being turn-based, places no demand.
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+Libratus \cite{brown2017libratus}
+  & Heads-up no-limit hold'em
+  & Counterfactual-regret equilibrium solving + search
+  & Beats top professionals in a game of hidden information and chance; shows the
+    goal is an unexploitable equilibrium, not a Markov decision process. \\
+\addlinespace
+NFSP \cite{heinrich2016nfsp}
+  & Imperfect-information games
+  & Deep RL via fictitious self-play, no hand-crafted abstractions
+  & Equilibrium strategies can be learned end-to-end. \\
+\addlinespace
+ReBeL \cite{brown2020rebel}
+  & Heads-up no-limit hold'em
+  & Unifies reinforcement learning with search
+  & Confirms learning + search reaches superhuman imperfect-information play. But
+    poker is turn-based, so this line does not exercise simultaneous action
+    (pillar 2). \\
+\bottomrule
+\end{tabularx}
+\caption{Imperfect information and search in poker (pillars exercised: 1, 3, 4).}
+\label{tab:analog_poker}
+\end{table}
 
-\paragraph{Scaled self-play in a team game (Dota 2: OpenAI Five).}
-OpenAI Five reached professional level in Dota 2, a long-horizon, partially
-observable team game, through self-play reinforcement learning at very large
-scale~\cite{berner2019openaifive}. It demonstrates that scaled self-play can work
-in a complex competitive environment, while also illustrating the substantial
-compute and engineering cost of doing so, a consideration any feasibility
-assessment must weigh.
+\subsubsection{(1, 3) Large imperfect-information game trees}
+\label{subsubsec:analog_stratego}
 
-\paragraph{Population methods and simultaneous-move search.}
-Two further strands of method are directly relevant to VGC's structure even though
-they are not tied to a single flagship system. Policy-Space Response Oracles
-(PSRO) and the broader empirical-game-theoretic and double-oracle family
-generalize population training into a principled framework for games with
-non-transitive strategy spaces~\cite{lanctot2017psro}; VGC-Bench's use of double
-oracle and fictitious play sits within this family. Separately, work on Monte
-Carlo tree search for simultaneous-move games adapts search to settings where both
-players commit before either observes the other, using equilibrium approximation
-rather than the ordinary one-player assumption that the opponent moves
-second~\cite{lanctot2014smmcts}. Both strands speak directly to features of VGC
-(its non-transitive metagame and its per-turn simultaneous commitment) that the
-single-game flagship systems above do not individually address.
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+DeepNash \cite{perolat2022deepnash}
+  & Stratego
+  & Model-free multi-agent RL with regularized Nash dynamics; no explicit search
+  & Closest cousin on the information axis: robust near-equilibrium policies can be
+    learned directly even when the tree is too large to search. But Stratego is
+    deterministic and strictly alternating, isolating pillar 3 without 2 or 4. \\
+\bottomrule
+\end{tabularx}
+\caption{Large imperfect-information game trees (pillars exercised: 1, 3).}
+\label{tab:analog_stratego}
+\end{table}
 
-\newpage
+\subsubsection{(1, 2*, 3) Population-based training at scale}
+\label{subsubsec:analog_alphastar}
+
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+AlphaStar \cite{vinyals2019alphastar}
+  & StarCraft II
+  & League training: a population of agents including dedicated ``exploiters''
+  & The league answers naive self-play's tendency to cycle in non-transitive
+    games, which VGC is; this is the key transferable idea. But StarCraft II is
+    essentially deterministic, and its real-time concurrency ($2^{*}$) is not the
+    blind simultaneous commitment of pillar~2: there is no per-turn matrix game
+    requiring mixed strategies. It is also dominated by real-time execution, an
+    axis turn-based VGC lacks. \\
+\bottomrule
+\end{tabularx}
+\caption{Population-based training at scale (pillars exercised: 1, $2^{*}$, 3).}
+\label{tab:analog_alphastar}
+\end{table}
+
+\subsubsection{(1, 2*, 3) Scaled self-play in a team game}
+\label{subsubsec:analog_openaifive}
+
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+OpenAI Five \cite{berner2019openaifive}
+  & Dota 2
+  & Self-play reinforcement learning at very large scale
+  & Scaled self-play works in a complex partially observable team game, while
+    illustrating the steep compute and engineering cost a feasibility study must
+    weigh. Like StarCraft II it is real-time-concurrent ($2^{*}$) rather than
+    blind simultaneous-commit, and it does not address stochasticity. \\
+\bottomrule
+\end{tabularx}
+\caption{Scaled self-play in a team game (pillars exercised: 1, $2^{*}$, 3).}
+\label{tab:analog_openaifive}
+\end{table}
+
+\subsubsection{(2) Population methods and simultaneous-move search}
+\label{subsubsec:analog_methods}
+
+These two method strands are not tied to a single flagship game, but each targets
+what the systems above miss.
+
+\begin{table}[H]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.55\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.10\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.80\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{System} & \textbf{Game} & \textbf{Method} & \textbf{Lesson for VGC} \\
+\midrule
+PSRO, double oracle / EGTA \cite{lanctot2017psro}
+  & General (non-transitive games)
+  & Population training as a principled framework for non-transitive strategy
+    spaces
+  & Generalizes the league idea and underlies VGC-Bench's baselines; speaks to
+    VGC's non-transitive metagame. \\
+\addlinespace
+Simultaneous-move MCTS \cite{lanctot2014smmcts}
+  & General (simultaneous-move games)
+  & Tree search where both players commit before observing the other, via
+    equilibrium approximation
+  & Directly addresses VGC's per-turn simultaneous commitment, which the
+    one-player ``opponent moves second'' assumption cannot. \\
+\bottomrule
+\end{tabularx}
+\caption{Population methods and simultaneous-move search (pillar exercised: 2).}
+\label{tab:analog_methods}
+\end{table}
+
+% Flush all pending floats (the analogous-game tables) before the document
+% moves on, so they cannot spill into the appendix.
+\clearpage
