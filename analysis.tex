@@ -29,15 +29,60 @@
 \subsection{Formalizing VGC as a Game}
 \label{subsec:formalization}
 % -----------------------------------------------------------------------------
-% (H) State the formal model explicitly: VGC battling is a partially observable
+% DONE (H) State the formal model explicitly: VGC battling is a partially observable
 %     stochastic game (POSG) with simultaneous moves, not an MDP.
 %     [src: claude_deep_research §8.2; chatgpt_deep_research Stage 1]
-% (H) Spell out the tuple: state = full hidden simulator state; observation =
+\paragraph{The formal model.}
+We model a VGC battle as a \emph{partially observable stochastic game} (POSG):
+a game between two strategic players, in which each player observes only part of
+the underlying game state, and in which the outcome of a turn is
+stochastic~\cite{karten2025pokeagent,perolat2022deepnash}. Partial observability
+comes from the hidden information VGC always carries: the opponent's two benched
+Pok\'{e}mon, their four-from-six lead selection until it is revealed, and, even
+under Open Team Sheets, their exact stat allocation. Stochasticity comes from the
+battle mechanics themselves, including damage rolls, move accuracy, critical hits,
+and secondary effects. This places VGC in the same family as the
+imperfect-information games studied in the poker and Stratego literature, whose
+solution concepts we return to in Section~\ref{subsec:positioning}.
+% DONE (H) Spell out the tuple: state = full hidden simulator state; observation =
 %     what the player legally knows (own team, revealed opponent info, OTS);
 %     action = joint choice for both active Pokemon; transition = stochastic
 %     simulator mechanics; reward = win/loss (+ optional shaping).
 %     [src: chatgpt_deep_research Stage 1]
-% [TODO 6] (H) Answer the Markov question precisely:
+\paragraph{The game tuple.}
+The model is given by the following components~\cite{karten2025pokeagent}:
+\begin{itemize}
+  \item \textbf{State:} the full hidden simulator state, that is, everything the
+        battle engine tracks: both complete teams, their exact stats, current HP,
+        field conditions, and what each side has already used.
+  \item \textbf{Observation:} what one player legally knows, namely their own team
+        in full, all revealed opponent information, and the Open Team Sheet
+        disclosure (movesets, items, abilities, and Terastal types). It excludes
+        the opponent's hidden lead selection, their two benched Pok\'{e}mon, and
+        their exact stat allocation.
+  \item \textbf{Action:} a joint choice for both of a side's active Pok\'{e}mon,
+        each one selecting a move or a switch, together with a target and the
+        once-per-battle option to Terastallize. This joint structure is the main
+        reason the per-turn action space is large, as quantified in
+        Section~\ref{subsec:complexity}.
+  \item \textbf{Transition:} the simulator's stochastic mechanics, which resolve
+        both players' joint actions into the next state.
+  \item \textbf{Reward:} the terminal win or loss of the battle, a sparse signal
+        that may optionally be shaped to aid training.
+\end{itemize}
+
+\paragraph{One controller or two cooperating agents?}
+The tuple above treats each side as a single controller that issues one joint
+action, which is the simplest faithful model. A side's action, however,
+decomposes into the choices of its two active Pok\'{e}mon, so a side may instead
+be modeled as two cooperating agents that share the same win-or-loss reward and
+must coordinate their moves, for example one Pok\'{e}mon setting up a
+speed-doubling effect or redirecting attacks while the other attacks. Under this
+view VGC is a mixed game: cooperation within a side and competition between the
+two sides. Whether to treat a side as one controller or as two cooperating agents
+is therefore a modeling decision with consequences for the method, and one we
+return to in the analysis that follows.
+% DONE [TODO 6] (H) Answer the Markov question precisely:
 %     - WITHIN one battle: the full simulator state IS Markov; the player's
 %       OBSERVATION is not -> this is why it is a POSG/POMDP, not an MDP.
 %     - ACROSS a best-of-three set and across matches: opponents mind-read from
@@ -45,28 +90,109 @@
 %       Markov view. Handle via I-POMDP / opponent-modeling framing, or by
 %       lifting the unit of analysis to the bo3 set / a belief over opponent type.
 %     [src: claude_deep_research §8.2; websearch I-POMDP, one-sided POSG]
-% (H) Note the simultaneous-move consequence: each turn is a matrix game ->
+\paragraph{The Markov question within one battle.}
+The full simulator state satisfies the Markov property: given the complete engine
+state, the distribution over the next state does not depend on how that state was
+reached. The player's \emph{observation} does not satisfy it, because hidden
+information means a player's belief about the true state depends on the whole
+history of what has been revealed. This is the precise sense in which a battle is
+partially observable, a POMDP from the player's seat, even though the state
+underneath is Markov. A second, more subtle caveat is worth flagging. Even setting
+hidden information aside, a near-identical state can recur within a single battle,
+with everything equal but the remaining Power Points, and an opponent reading
+prior play may choose a different action the second time. The player's decision
+problem \emph{may} therefore be history-dependent, in which case a Markov state for
+that problem would have to include the interaction history rather than the board
+alone. We stress the word may: it remains possible that an agent learns optimal
+play without conditioning on past moves. We raise this as an open caveat, not a
+settled requirement.
+
+\paragraph{The Markov question across a set and across matches.}
+The same possible history-dependence reappears over a longer horizon. In a
+best-of-three set, and across a tournament, opponents adapt to prior play, so the
+opponent may behave as a non-stationary part of the environment and the
+single-shot Markov view over one battle may not capture it. If this dependence
+turns out to matter, two natural responses are to lift the unit of analysis to the
+whole best-of-three set, folding the cross-game history into the state, or to carry
+a belief over the opponent's type and model them explicitly. As above, this is a
+contingency to plan for rather than a fact we assert.
+% DONE (H) Note the simultaneous-move consequence: each turn is a matrix game ->
 %     solution concept is a (possibly mixed) equilibrium, not a max-reward action.
 %     Forward-reference subsec:lineage. [src: vgc_comparison Q2]
+\paragraph{The simultaneous-move consequence.}
+Because both players commit their actions at the same time each turn, a single
+turn is not a sequential decision but a simultaneous-move, normal-form game: a
+matrix game between the two sides' available actions. The right answer to such a
+turn is therefore a possibly mixed, that is randomized, equilibrium rather than a
+single highest-reward action, since any deterministic best response is exploitable
+in a guessing game of this kind~\cite{lanctot2014smmcts}. What machinery produces
+such equilibria is taken up in Section~\ref{subsec:positioning}. The same
+equilibrium logic recurs one level up, at the team-building layer: there is no
+single best team, because for any team a counter-team can be built, so the
+team-level solution is itself an equilibrium, a team (or distribution over teams)
+that balances against the field rather than one that beats everything. We develop
+this coupling between team building and battling in
+Section~\ref{subsec:triviality}.
 
 % -----------------------------------------------------------------------------
 \subsection{Quantifying the Complexity}
 \label{subsec:complexity}
 % -----------------------------------------------------------------------------
-% [TODO 3] (I) Give the numbers, with assumptions stated, not rhetoric:
+% DONE [TODO 3] (I) Give the numbers, with assumptions stated, not rhetoric:
 %     - team-config space: ~10^139 (Gen 9, VGC-Bench) AND ~6x10^218 (USUM,
 %       Traylor) -> present BOTH, state era + granularity, do NOT silently pick.
 %     - per-turn stochastic branching factor: up to ~10^12.
 %     - OTS information-set size: lower-bounded ~10^58.
 %     [src: claude_deep_research §0, §1.1, §5; vgc_aaron_traylor §5]
-% [TODO 1] (singles vs doubles) Fold in here as WHY the numbers are large:
+\paragraph{The raw numbers.}
+Three published figures quantify the size of the problem. Each is stated below
+with the era and the degrees of freedom it counts, since these assumptions matter.
+\begin{itemize}
+  \item \textbf{Team-configuration space.} Estimates of the number of legal teams
+        range from about $10^{139}$ (Generation 9, counting species, moves, items,
+        abilities, the 19 Terastal types, and stat allocations) to about
+        $6.087 \times 10^{218}$ (the Ultra Sun and Ultra Moon
+        era)~\cite{angliss2026vgcbench,traylor_vgc}. The two differ by generation
+        and by which degrees of freedom are counted, so we present both rather
+        than silently choosing one. Both exceed the configuration space of every
+        other benchmarked strategy game by many orders of magnitude.
+  \item \textbf{Per-turn stochastic branching factor.} The number of distinct
+        outcomes a single turn can resolve into, driven by the stochastic
+        mechanics, reaches as high as about $10^{12}$~\cite{angliss2026vgcbench}.
+  \item \textbf{Information-set size.} Even under Open Team Sheets, the size of a
+        player's information set is lower-bounded at about $10^{58}$, because the
+        opponent's exact stat allocation remains hidden~\cite{angliss2026vgcbench}.
+\end{itemize}
+% DONE [TODO 1] (singles vs doubles) Fold in here as WHY the numbers are large:
 %     two active Pokemon -> joint action space, targeting, Protect/positioning,
 %     speed control, coordination; bring-6-choose-4 + hidden lead. Doubles is not
 %     "singles x2". [src: claude_deep_research §3.1, §6.2; introduction.tex]
-% (J) CREDIBILITY GUARDRAIL: say WHICH definition of complexity is meant.
+\paragraph{Why doubles, not singles.}
+The size of these numbers comes from the doubles structure, not from scaling
+singles up. With two active Pok\'{e}mon per side, each turn is a joint choice over
+both, with targeting, Protect and positioning, speed control, and coordination
+between the two, on top of the bring-six-choose-four selection and hidden lead.
+These factors combine multiplicatively, so doubles is structurally harder than two
+singles games at once rather than simply twice as large.
+% DONE (J) CREDIBILITY GUARDRAIL: say WHICH definition of complexity is meant.
 %     Under raw state-space / game-tree size VGC is SMALL next to Go/SC2 -> the
 %     defensible claim is game-theoretic DEPTH under variance, not scale.
 %     Do not overclaim to the advisor. [src: vgc_comparison Q2]
+\paragraph{Which definition of complexity.}
+It matters which notion of complexity these numbers support. Under raw
+state-space or game-tree size, a VGC battle is in fact \emph{small} next to Go or
+StarCraft~II: it is a handful of Pok\'{e}mon over tens of turns, and a single
+battle with fixed teams can be self-played millions of times on modest hardware.
+The defensible claim to make is therefore not one of scale but of game-theoretic
+depth under variance: VGC stacks simultaneous commitment, imperfect information,
+and genuine randomness together, and it is that combination, not the size of the
+tree, that makes it hard. A second source of difficulty that scale alone misses is
+that the two optimization problems are nested: team building is an outer problem
+that wraps the inner battling problem, so the difficulty compounds across layers
+rather than residing in any single game tree. We develop this nesting in
+Section~\ref{subsec:triviality}. We are careful not to overclaim: the assertion
+that VGC is more complex than StarCraft~II is false under the computational-scale
+reading, and we do not make it.
 
 % -----------------------------------------------------------------------------
 \subsection{Where VGC Sits Among Solved Games}
