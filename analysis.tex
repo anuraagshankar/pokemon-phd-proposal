@@ -198,12 +198,22 @@ reading, and we do not make it.
 \subsection{Where VGC Sits Among Solved Games}
 \label{subsec:positioning}
 % -----------------------------------------------------------------------------
-% [TODO 2] (difference from poker / StarCraft / etc.) Build on the four-pillars
+% DONE [TODO 2] (difference from poker / StarCraft / etc.) Build on the four-pillars
 %     table in existing_research; here make the ANALYTICAL point, not the survey:
 %     no solved benchmark combines all four axes at once; VGC's hard axis
 %     (both players guess at the same time + real randomness) is exactly the axis
 %     AlphaStar is WEAKEST on. [src: vgc_comparison Q2; existing_research tables]
-% (C) Why plain deep RL is not enough here, simply:
+\paragraph{The axis no benchmark covers.}
+The survey in Section~\ref{sec:existing_research} shows that no solved benchmark
+exercises all four strategic pillars at once. VGC's hard axis is pillar~2 in its
+true form, both players committing blind at the same time, combined with pillar~4,
+genuine randomness. That is the corner of the design space no prior system has
+had to solve. AlphaStar is weakest precisely here: its concurrency is the
+real-time form marked $2^{*}$ in Section~\ref{sec:existing_research}, not blind
+simultaneous commitment, and StarCraft~II carries essentially no pillar-4
+randomness. The most cited ``we beat a hard game'' system is therefore the one
+least equipped for the axis on which VGC is hard~\cite{vinyals2019alphastar}.
+% DONE (C) Why plain deep RL is not enough here, simply:
 %     - In a guessing game, an agent that just tries to win the most chases its
 %       own tail (spam Rock -> opponent spams Paper -> switch to Scissors ->
 %       ...). It never settles. VGC-Bench saw exactly this (rock-paper-scissors
@@ -213,7 +223,25 @@ reading, and we do not make it.
 %       machinery: DeepNash/R-NaD (Stratego), NFSP and CFR (poker), inside
 %       PSRO / league population training.
 %       [src: vgc_comparison Q2; existing_research analogous-games tables]
-% (C) State the lineage cleanly: AlphaStar's POPULATION/LEAGUE idea transfers;
+\paragraph{Why plain deep RL is not enough.}
+In a guessing game, an agent that simply maximizes reward chases its own tail: it
+spams one move, the opponent learns to punish it, it switches, and so on, never
+settling on a stable strategy. This is not hypothetical for VGC. VGC-Bench observed
+exactly such rock-paper-scissors cycles among its strongest
+agents~\cite{angliss2026vgcbench}. The fix is still deep RL, but aimed at an
+\emph{unexploitable} strategy rather than the highest-reward one. That is the
+equilibrium machinery: regularized Nash dynamics as in
+DeepNash~\cite{perolat2022deepnash}, fictitious self-play as in
+NFSP~\cite{heinrich2016nfsp}, run inside population training such as
+PSRO~\cite{lanctot2017psro}. This fixes the lineage cleanly. AlphaStar's
+population and league idea transfers directly, because it is precisely its tool
+for non-transitivity, which VGC shares. What does not transfer is its core: each
+agent still maximizes reward and converges to a deterministic best response, which
+is fine in StarCraft~II but exploitable in VGC, where every turn is a blind
+simultaneous-commit matrix game whose unexploitable solution is a mixed strategy.
+That per-decision equilibrium is what the poker and Stratego line adds. Deep RL
+remains the engine, and equilibrium-seeking is what we wrap around it.
+% DONE (C) State the lineage cleanly: AlphaStar's POPULATION/LEAGUE idea transfers;
 %     its plain reward-maximizing CORE does not. The core we want comes from the
 %     poker/Stratego equilibrium line. Deep RL is the engine; equilibrium-seeking
 %     is what we wrap around it. [src: vgc_comparison Q2; claude_deep_research §0]
@@ -222,10 +250,10 @@ reading, and we do not make it.
 \subsection{The Triviality Risk and What Dissolves It}
 \label{subsec:triviality}
 % -----------------------------------------------------------------------------
-% [TODO 5] (too easy / off-the-shelf?) THE serious concern. State it honestly:
+% DONE [TODO 5] (too easy / off-the-shelf?) THE serious concern. State it honestly:
 %     "take an existing method (R-NaD/CFR), wire it to a Pokemon env, add compute,
 %     report a win rate" is an engineering project, not a PhD. [src: vgc_comparison Q3]
-% (A) The result that reframes it (this is the engine-vs-headline point in action):
+% DONE (A) The result that reframes it (this is the engine-vs-headline point in action):
 %     a deep RL agent ALREADY beats a pro, BUT only in a SINGLE-TEAM MIRROR MATCH
 %     -- both sides run the SAME one team, so the agent never faces team diversity
 %     at all. Performance COLLAPSES once trained on many teams (1 -> 30). So "can
@@ -238,57 +266,116 @@ reading, and we do not make it.
 %      both sides) and that the generalization drop is the 1->30-team setting.
 %      Also confirm the exact "1 -> 30" figures. Resource summary says so; the
 %      paper is the source of truth.]
-% (B) Why exploitability + non-transitivity are the real targets, plainly:
+\paragraph{The triviality risk, and why it does not hold.}
+The serious worry is that the project reduces to engineering: take an existing
+method such as regularized Nash dynamics or counterfactual regret minimization,
+wire it to a Pok\'{e}mon environment, add compute, and report a win rate. That
+would be a strong engineering project, not a PhD. The newest evidence both grants
+the worry and dissolves it. A deep RL agent already defeats a professional VGC
+competitor, but only in a single-team mirror match, the same one team on both
+sides, so it never faces team diversity at all; performance then collapses as the
+number of training teams is scaled from one up to thirty~\cite{angliss2026vgcbench}.
+Winning one fixed mirror matchup is therefore close to solved, and that narrow
+result cannot be the headline. The open problem is play that generalizes across
+teams and that opponents cannot exploit.
+% DONE (B) Why exploitability + non-transitivity are the real targets, plainly:
 %     even the strongest agents can be beaten by an opponent that studies them
 %     (exploitable), and strong agents beat each other in circles (A>B>C>A). So
 %     the goal is a strategy nobody can punish (an unexploitable equilibrium), not
 %     just one that scores high. This is what the equilibrium machinery buys us.
 %     [src: claude_deep_research §1.1]
-% [TODO 4] (too hard for a PhD student?) Split the answer by dimension:
-%     - (K) COMPUTE/INFRA: battles run in microseconds -> per-experiment cost is
+\paragraph{Exploitability and non-transitivity are the real targets.}
+Two facts about even the strongest VGC agents define what success has to mean.
+They remain exploitable: an opponent that studies them can reliably learn to beat
+them. They are also non-transitive: strong agents beat one another in
+circles~\cite{angliss2026vgcbench}. The target is therefore not a high score but a
+strategy nobody can punish, an unexploitable equilibrium, which is exactly what
+the equilibrium machinery of the previous subsection is meant to provide.
+% DONE [TODO 4] (too hard for a PhD student?) Split the answer by dimension:
+%     - SKIPPED (K) COMPUTE/INFRA: battles run in microseconds -> per-experiment cost is
 %       NOT the blocker (unlike StarCraft); real cost is building doubles/VGC
 %       infra that does not yet mature exist (poke-env singles-oriented).
 %       [src: vgc_comparison Q3]
-%     - (F) BILEVEL STRUCTURE: adding team-building INVERTS the risk from
+%     - DONE (F) BILEVEL STRUCTURE: adding team-building INVERTS the risk from
 %       too-trivial to too-big. Team building is an OUTER game whose payoff is
 %       itself a battle equilibrium -> a bilevel game over a STRUCTURED
 %       combinatorial team space (synergy/coverage, not opaque policies) ->
 %       PSRO / double-oracle / EGTA. This is where the deepest novelty lives.
 %       [src: vgc_comparison Q4]
+\paragraph{Team building inverts the risk.}
+Adding team building inverts the risk, from too trivial to too big. Team building
+is an outer game whose payoff for a team is itself a battle equilibrium, so the two
+phases form a bilevel game over a structured combinatorial space (teams have
+synergy and type coverage, not opaque policies), which points to population methods
+such as PSRO, double oracle, and EGTA~\cite{lanctot2017psro}. This is where the
+deepest novelty of the problem lives. The same move is also where scope risk lies:
+the full coupled problem at a superhuman target is plausibly too large for one PhD,
+a tension the scoping in Section~\ref{subsec:scoping} must resolve.
 
 % -----------------------------------------------------------------------------
 \subsection{Redefining and Measuring ``Superhuman'' Under Variance}
 \label{subsec:superhuman}
 % -----------------------------------------------------------------------------
-% (D) "Superhuman" must be REDEFINED: genuine RNG means a perfect Nash agent
+% DONE (D) "Superhuman" must be REDEFINED: genuine RNG means a perfect Nash agent
 %     still loses winnable games -> cannot mean ~100% win rate. Reframe as best
 %     achievable EXPECTED win rate / LOWEST exploitability given variance. Give a
 %     working definition. [src: vgc_comparison Q2, Q3]
-% (E) Make variance-aware EVALUATION a first-class contribution (publishable on
+% DONE (E) Make variance-aware EVALUATION a first-class contribution (publishable on
 %     its own): separating decision quality from luck. Anchors:
 %     - sample-size reality: poker needs ~30k hands to separate pro from amateur.
 %     - binomial-proportion confidence intervals on win rate.
 %     - variance-reduction techniques (e.g. AIVAT) for imperfect-info agent eval.
 %     [src: vgc_comparison Q3,Q4; websearch AIVAT, importance-sampling eval]
 
+Genuine randomness means that even a perfect equilibrium agent loses games it
+should win, so ``superhuman'' cannot mean a near-perfect win rate. The workable
+definition is the best achievable expected win rate, or equivalently the lowest
+exploitability, given the variance the game imposes. This redefinition forces an
+evaluation problem, which we treat as a first-class contribution: separating
+decision quality from luck is hard and publishable in its own right. The scale of
+the problem is well documented in poker, where a heads-up man-machine match of
+80{,}000 hands played over thirteen days was still only on the edge of statistical
+significance~\cite{burch2018aivat}. Three tools carry over to VGC: reporting
+binomial-proportion confidence intervals on win rate rather than point estimates;
+using enough games for those intervals to separate agents; and applying
+variance-reduction techniques such as AIVAT, which was built precisely to evaluate
+agents in imperfect-information games and cut the games needed for a given
+conclusion by more than an order of magnitude~\cite{burch2018aivat}.
+
 % -----------------------------------------------------------------------------
 \subsection{Scoping a Finishable PhD}
 \label{subsec:scoping}
 % -----------------------------------------------------------------------------
-% (G) THE key guardrail: decide early which loop is the RESEARCH and which is
+% DONE (G) THE key guardrail: decide early which loop is the RESEARCH and which is
 %     "good-enough" FROZEN infrastructure (team search vs. battle solver). Do not
 %     let the inner battle solver eat year three. [src: vgc_comparison Q4 closing]
-% (L) Platform-transition RISK: solving Scarlet/Violet VGC, Pokemon Champions
+\paragraph{Scoping team building, not battling.}
+Battling is firmly in scope: it is the inner loop, built to be strong and then
+relied on. The scoping decision lives entirely in the outer loop, because team
+building in full is too large, both the astronomical configuration space and the
+bilevel coupling shown in Section~\ref{subsec:triviality}. Feasibility therefore
+comes from narrowing team building rather than abandoning it. A few illustrative
+handles: restrict to a single limited-regulation metagame, work over a curated
+pool of teams rather than open construction, or fix the team representation so the
+outer search ranges over a small structured set. The point is not to pick one of
+these now but to commit early to some bound on the outer loop, so that the coupled
+problem stays finishable.
+% SKIPPED (L) Platform-transition RISK: solving Scarlet/Violet VGC, Pokemon Champions
 %     VGC, or a simulator approximation? Affects mechanics, data, reproducibility,
 %     long-term relevance. (Intro mentions Champions; here weigh it as a risk.)
 %     [src: chatgpt_deep_research; claude_deep_research §4]
-% (M) Data fragmentation as both a risk AND a candidate contribution: no clean
+%     -> SKIPPED: Pokemon Champions standardizes the platform, so the
+%        platform-transition / target-choice risk is largely moot.
+% SKIPPED (M) Data fragmentation as both a risk AND a candidate contribution: no clean
 %     public VGC research corpus (Victory Road / Limitless / Showdown / Pikalytics
 %     scattered) -> "build the first reproducible VGC corpus" is a real deliverable.
 %     [src: claude_deep_research §9 Gap 5]
-% (verdict) Close with the honest fundable shape: pose the COUPLED problem as the
+%     -> SKIPPED: Showdown hosts VGC ladders that can be scraped, and VGC-Bench
+%        already ships 700k+ battle logs, so data is not a main concern for now.
+% SKIPPED (verdict) Close with the honest fundable shape: pose the COUPLED problem as the
 %     framing/source of difficulty, claim a BOUNDED finishable contribution inside
 %     it, map the rest as future work; keep "toward" doing real work.
 %     [src: vgc_comparison Q3, Q4 verdicts]
+%     -> SKIPPED for now.
 
 \newpage
