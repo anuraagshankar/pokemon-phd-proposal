@@ -181,26 +181,30 @@ game engine from an abstracted Pok\'{e}mon model.}
 \subsection{Analogous Games and Their AI Systems}
 \label{subsec:analogous}
 
-VGC's difficulty comes from combining four strategic properties at once, as set
-out in Section~\ref{sec:introduction}:
+VGC's difficulty comes from five strategic pillars, as set out in
+Section~\ref{sec:introduction}: a structural first pillar and four that make the
+inner battling game hard.
 
 \begin{enumerate}
+  \item the bilevel structure (team building wrapping battling);
   \item long-horizon planning;
   \item simultaneous action;
   \item imperfect information; and
   \item stochasticity.
 \end{enumerate}
 
-No single solved game combines all four, but several landmark systems each solved
-a game that shares one or more of them, and these are the systems whose methods a
-VGC study would draw on. They are grouped below by strategic theme; each group's
-heading and caption list the pillars its systems exercise, by the numbers above,
-and each table gives one row per system. The notation $2^{*}$ marks a weaker form
-of pillar~2: real-time concurrency, where both players act at once but without the
-blind simultaneous commitment (and resulting matrix-game mixed strategies) that
-true pillar~2 requires. They are reviewed here as methodological precedent; the
-argument that none of them covers VGC's full combination is developed in
-Section~\ref{sec:analysis}.
+No single solved game combines all five, but several landmark systems each solved
+a game that shares one or more of the inner pillars (2--5), and these are the
+systems whose methods a VGC study would draw on. They are grouped below by
+strategic theme; each group's heading and caption list the pillars its systems
+exercise, by the numbers above, and each table gives one row per system. The
+notation $3^{*}$ marks a weaker form of pillar~3: real-time concurrency, where
+both players act at once but without the blind simultaneous commitment (and
+resulting matrix-game mixed strategies) that true pillar~3 requires. Notably,
+none of the reviewed single-game systems exercises pillar~1: each solves a game
+with no outer team-building level, which is the gap developed in
+Section~\ref{sec:analysis}. They are reviewed here as methodological precedent;
+the argument that none of them covers VGC's full combination is developed there.
 
 \subsubsection{(1) Perfect-information self-play}
 \label{subsubsec:analog_selfplay}
@@ -225,14 +229,14 @@ AlphaZero \cite{silver2018alphazero}
   & Self-play from the rules alone, no human data
   & Confirms the self-play-with-search paradigm generalizes. But these games are
     perfect-information, deterministic, and turn-based, the opposite of VGC on
-    pillars 2--4: the transferable lesson is the paradigm, not the algorithm. \\
+    pillars 3--5: the transferable lesson is the paradigm, not the algorithm. \\
 \bottomrule
 \end{tabularx}
-\caption{Perfect-information self-play (pillars exercised: 1).}
+\caption{Perfect-information self-play (pillars exercised: 2).}
 \label{tab:analog_selfplay}
 \end{table}
 
-\subsubsection{(1, 3, 4) Imperfect information and search (poker)}
+\subsubsection{(2, 4, 5) Imperfect information and search (poker)}
 \label{subsubsec:analog_poker}
 
 \begin{table}[H]
@@ -261,14 +265,14 @@ ReBeL \cite{brown2020rebel}
   & Unifies reinforcement learning with search
   & Confirms learning + search reaches superhuman imperfect-information play. But
     poker is turn-based, so this line does not exercise simultaneous action
-    (pillar 2). \\
+    (pillar 3). \\
 \bottomrule
 \end{tabularx}
-\caption{Imperfect information and search in poker (pillars exercised: 1, 3, 4).}
+\caption{Imperfect information and search in poker (pillars exercised: 2, 4, 5).}
 \label{tab:analog_poker}
 \end{table}
 
-\subsubsection{(1, 3) Large imperfect-information game trees}
+\subsubsection{(2, 4) Large imperfect-information game trees}
 \label{subsubsec:analog_stratego}
 
 \begin{table}[H]
@@ -286,14 +290,14 @@ DeepNash \cite{perolat2022deepnash}
   & Model-free multi-agent RL with regularized Nash dynamics; no explicit search
   & Closest cousin on the information axis: robust near-equilibrium policies can be
     learned directly even when the tree is too large to search. But Stratego is
-    deterministic and strictly alternating, isolating pillar 3 without 2 or 4. \\
+    deterministic and strictly alternating, isolating pillar 4 without 3 or 5. \\
 \bottomrule
 \end{tabularx}
-\caption{Large imperfect-information game trees (pillars exercised: 1, 3).}
+\caption{Large imperfect-information game trees (pillars exercised: 2, 4).}
 \label{tab:analog_stratego}
 \end{table}
 
-\subsubsection{(1, 2*, 3) Population-based training at scale}
+\subsubsection{(2, 3*, 4) Population-based training at scale}
 \label{subsubsec:analog_alphastar}
 
 \begin{table}[H]
@@ -311,17 +315,17 @@ AlphaStar \cite{vinyals2019alphastar}
   & League training: a population of agents including dedicated ``exploiters''
   & The league answers naive self-play's tendency to cycle in non-transitive
     games, which VGC is; this is the key transferable idea. But StarCraft II is
-    essentially deterministic, and its real-time concurrency ($2^{*}$) is not the
-    blind simultaneous commitment of pillar~2: there is no per-turn matrix game
+    essentially deterministic, and its real-time concurrency ($3^{*}$) is not the
+    blind simultaneous commitment of pillar~3: there is no per-turn matrix game
     requiring mixed strategies. It is also dominated by real-time execution, an
     axis turn-based VGC lacks. \\
 \bottomrule
 \end{tabularx}
-\caption{Population-based training at scale (pillars exercised: 1, $2^{*}$, 3).}
+\caption{Population-based training at scale (pillars exercised: 2, $3^{*}$, 4).}
 \label{tab:analog_alphastar}
 \end{table}
 
-\subsubsection{(1, 2*, 3) Scaled self-play in a team game}
+\subsubsection{(2, 3*, 4) Scaled self-play in a team game}
 \label{subsubsec:analog_openaifive}
 
 \begin{table}[H]
@@ -339,15 +343,15 @@ OpenAI Five \cite{berner2019openaifive}
   & Self-play reinforcement learning at very large scale
   & Scaled self-play works in a complex partially observable team game, while
     illustrating the steep compute and engineering cost a feasibility study must
-    weigh. Like StarCraft II it is real-time-concurrent ($2^{*}$) rather than
+    weigh. Like StarCraft II it is real-time-concurrent ($3^{*}$) rather than
     blind simultaneous-commit, and it does not address stochasticity. \\
 \bottomrule
 \end{tabularx}
-\caption{Scaled self-play in a team game (pillars exercised: 1, $2^{*}$, 3).}
+\caption{Scaled self-play in a team game (pillars exercised: 2, $3^{*}$, 4).}
 \label{tab:analog_openaifive}
 \end{table}
 
-\subsubsection{(2) Population methods and simultaneous-move search}
+\subsubsection{(3) Population methods and simultaneous-move search}
 \label{subsubsec:analog_methods}
 
 These two method strands are not tied to a single flagship game, but each targets
@@ -378,7 +382,7 @@ Simultaneous-move MCTS \cite{lanctot2014smmcts}
     one-player ``opponent moves second'' assumption cannot. \\
 \bottomrule
 \end{tabularx}
-\caption{Population methods and simultaneous-move search (pillar exercised: 2).}
+\caption{Population methods and simultaneous-move search (pillar exercised: 3).}
 \label{tab:analog_methods}
 \end{table}
 
