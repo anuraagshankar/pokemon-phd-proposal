@@ -1,17 +1,56 @@
 % introduction.tex
-% Introduces the research domain, motivates the problem, and states the thesis question.
+% Introduces the higher-level problem (bilevel games with hard inner equilibria),
+% motivates it through competitive Pokemon (VGC) as the primary application, and
+% states the thesis question. Abstraction-first opening (strategy A); VGC material
+% is retained as background/motivation subsections beneath it.
 % Draft this section before existing_research.tex or analysis.tex.
 
 \section{Introduction}
 \label{sec:introduction}
 
+\subsection{Bilevel Games with Hard Inner Equilibria}
+
+Many important decisions have a two-level shape. A decision maker first commits
+to a choice, and the value of that choice is then decided by a second problem
+that must be played out or solved underneath it. Choose a defensive allocation,
+and its value is set by how a strategic attacker responds. Choose a training
+environment, and its value is set by how well an agent learns to act in it.
+Choose the parameters of a model, and their value is set by a worst-case
+perturbation. Problems of this kind, where an outer decision's payoff is the
+value of an inner optimization or game, are studied as \emph{bilevel} (or
+\emph{Stackelberg}) problems~\cite{zhang2023bilevel}. They appear across
+well-known areas of research: Stackelberg security games, deployed to protect
+airports and other infrastructure~\cite{tambe2011security}; adversarial
+robustness, posed as a min-max saddle-point problem~\cite{madry2018towards}; and
+unsupervised environment design, where an adversary shapes a curriculum for a
+learning agent~\cite{dennis2020emergent}.
+
+In the cases that are best understood, the inner problem is
+\emph{tractable}: its solution is unique and reasonably cheap to compute, so the
+outer problem can be attacked with the machinery built for that setting. The
+survey that frames this class restricts attention to exactly such tractable
+cases, and notes that even a bilevel problem with convex levels can be NP-hard
+once that structure is lost~\cite{zhang2023bilevel}. This leaves a natural
+question open. What happens when the inner problem is not tractable at all, but a
+genuinely hard game: one with imperfect information, simultaneous moves, chance,
+and a long horizon, whose solution is a mixed-strategy equilibrium rather than a
+single cheap answer? We refer to this underserved case as a \emph{bilevel game
+with a hard inner equilibrium}, and it is the subject of this study.
+
+Competitive Pok\'{e}mon, in its official doubles format, is the sharpest concrete
+instance of this case that we are aware of, and it is the primary application
+through which we develop and test the ideas here. The outer decision is building
+a team; the inner problem is winning battles with it; and a team's value is the
+value of the battling equilibrium it induces. The rest of this section builds up
+that instance and then states the thesis question in these terms.
+
+\subsection{Motivation: Competitive Pok\'{e}mon and VGC}
+
 To most people, Pok\'{e}mon is the single-player adventure of catching creatures
 and working through a story campaign. Running alongside it, however, is a whole
 parallel track of \emph{competitive} Pok\'{e}mon, where two human players battle
 each other under tournament rules. It is this competitive track, not the
-single-player game, that this study is concerned with.
-
-\subsection{Competitive Pok\'{e}mon and the VGC Format}
+single-player game, that this study draws on.
 
 Competitive Pok\'{e}mon is a far harder game than the single-player campaign
 suggests. It is played in two main formats:
@@ -28,9 +67,9 @@ suggests. It is played in two main formats:
 
 VGC defines official, top-level human play, so it is the only setting in which
 ``superhuman'' performance is a well-posed target. For that reason it is the
-sole focus of this study; other formats appear only for comparison. Its rules
-make VGC a partial-information game with simultaneous moves, not the
-full-information, take-turns game its surface presentation suggests~\cite{traylor_vgc}:
+format we use; other formats appear only for comparison. Its rules make VGC a
+partial-information game with simultaneous moves, not the full-information,
+take-turns game its surface presentation suggests~\cite{traylor_vgc}:
 
 \begin{itemize}
   \item A team has six Pok\'{e}mon, but only four are brought into any battle.
@@ -46,23 +85,18 @@ full-information, take-turns game its surface presentation suggests~\cite{traylo
         and in-battle plans stay hidden.
 \end{itemize}
 
-\subsection{A Unified Competitive Platform: Pok\'{e}mon Champions}
+Historically, VGC was hosted on whichever mainline role-playing title was
+current, so competitive tools were built on top of games not designed for them,
+and the metagame moved generation to generation. \emph{Pok\'{e}mon Champions}
+(developed by The Pok\'{e}mon Works; published by The Pok\'{e}mon Company and
+Nintendo) is a dedicated competitive battle simulator, released on Nintendo
+Switch in April 2026 and on iOS and Android in June
+2026~\cite{pokemon_champions_wiki}. It is set to replace the mainline titles as
+the official VGC tournament platform~\cite{pokemon_champions_official}, giving
+competitive Pok\'{e}mon a single purpose-built platform and a more stable base
+than the rotating-cartridge approach it replaces.
 
-\begin{itemize}
-  \item Historically, VGC was hosted on whichever mainline role-playing title was
-        current, so competitive tools were built on top of games not designed for
-        them, and the metagame moved generation to generation.
-  \item \emph{Pok\'{e}mon Champions} (developed by The Pok\'{e}mon Works;
-        published by The Pok\'{e}mon Company and Nintendo) is a dedicated
-        competitive battle simulator, released on Nintendo Switch in April 2026
-        and on iOS and Android in June 2026~\cite{pokemon_champions_wiki}.
-  \item It is set to replace the mainline titles as the official VGC tournament
-        platform~\cite{pokemon_champions_official}, giving competitive Pok\'{e}mon
-        a single purpose-built platform and a more stable base than the
-        rotating-cartridge approach it replaces.
-\end{itemize}
-
-\subsection{The Two Phases of Competitive Pok\'{e}mon}
+\subsection{VGC as a Bilevel Game with a Hard Inner Game}
 
 Competitive Pok\'{e}mon is a repeating, two-stage game~\cite{traylor_vgc}:
 
@@ -74,19 +108,27 @@ Competitive Pok\'{e}mon is a repeating, two-stage game~\cite{traylor_vgc}:
         opponent.
 \end{itemize}
 
-The two cannot be cleanly separated: a good team requires knowing how battles are
-won, and winning battles requires a well-built team. The two phases nest. Battling
-is the inner problem of playing a fixed pair of teams well, and team building is
-the outer problem of choosing a team whose value is set by how it fares in those
-battles. This study treats the full coupled problem as its framing, but commits
-firmly to the inner phase and reaches into team building as far as is feasible,
-rather than promising to solve the outer problem in full. Section~\ref{sec:analysis}
-develops this nesting and the bound on how much of it one project can claim.
+These two stages are exactly the outer and inner levels of the abstraction in
+Section~\ref{sec:introduction}. Team building is the \emph{outer} decision, and
+battling is the \emph{inner} game whose equilibrium sets a team's value. The two
+cannot be cleanly separated: a good team requires knowing how battles are won,
+and winning battles requires a well-built team. The two phases nest. Battling is
+the inner problem of playing a fixed pair of teams well, and team building is the
+outer problem of choosing a team whose value is set by how it fares in those
+battles. What makes VGC the hard-inner instance, rather than one of the tractable
+cases, is that the inner game is not a cheap unique best response but an
+equilibrium of an imperfect-information, simultaneous-move, stochastic,
+long-horizon game. The next subsection sets out why that inner game is hard.
 
-\subsection{The Four Strategic Pillars of Battling}
+This study treats the full coupled problem as its framing, but commits firmly to
+the inner phase and reaches into team building as far as is feasible, rather than
+promising to solve the outer problem in full. Section~\ref{sec:analysis} develops
+this nesting and the bound on how much of it one project can claim.
 
-Following Traylor~\cite{traylor_vgc}, high-level VGC battling demands four parts
-of game theory at once:
+\subsection{The Four Strategic Pillars: Why the Inner Game Is Hard}
+
+The inner game is hard because high-level VGC battling demands four parts of game
+theory at once~\cite{traylor_vgc}:
 
 \begin{itemize}
   \item \textbf{Long-term planning.} As in chess, resources shrink as Pok\'{e}mon
@@ -123,31 +165,37 @@ What sets VGC apart is that all four pillars are present \emph{at the same time}
 Benchmark games isolate only some: chess demands long-term planning but under full
 information and turn order; poker combines imperfect information with chance but is
 turn-based. VGC sits at the meeting point of all four~\cite{traylor_vgc}, and, as
-this document argues, no solved benchmark game shares that combination.
+this document argues, no solved benchmark game shares that combination. This is
+what makes the inner equilibrium hard, and what places VGC outside the tractable
+bilevel cases described in Section~\ref{sec:introduction}.
 
 \subsection{Thesis and Research Questions}
 
-This document is a feasibility study asking whether superhuman performance in
-Pok\'{e}mon VGC is an achievable and worthwhile target for doctoral research,
-across both the battling and team-building phases described above and the way they
-nest. It does not yet commit to a method; it describes the problem, surveys what
-has been tried, and assesses where the open frontier lies. It is organized around
-three core questions:
+This document is a feasibility study asking whether \emph{bilevel games with hard
+inner equilibria} are an achievable and worthwhile target for doctoral research,
+using competitive Pok\'{e}mon VGC as the primary application. It does not yet
+commit to a method; it describes the problem, surveys what has been tried, and
+assesses where the open frontier lies. It is organized around three core
+questions:
 
 \begin{enumerate}
-  \item \textbf{Complexity.} How computationally and strategically complex is
-        Pok\'{e}mon VGC as a problem domain, and how does that complexity compare
-        with that of strategy games already studied in AI?
-  \item \textbf{Existing work.} What prior research exists on AI agents for
-        competitive Pok\'{e}mon, and on similar imperfect-information,
-        simultaneous-action games such as poker, Stratego, and StarCraft~II?
-  \item \textbf{Gap analysis.} If superhuman VGC performance has not been
-        achieved, why not, and what would it take to close that gap?
+  \item \textbf{Problem class and complexity.} What characterizes a bilevel game
+        with a hard inner equilibrium, how does it differ from the tractable
+        bilevel and Stackelberg settings already studied, and how complex is VGC
+        as an instance of it?
+  \item \textbf{Existing work.} What prior research exists on bilevel and
+        Stackelberg games, on equilibrium-finding in imperfect-information
+        stochastic games such as poker and Stratego, on the renowned open-problem
+        siblings of this class, and on AI agents for competitive Pok\'{e}mon in
+        particular?
+  \item \textbf{Gap analysis.} If this class of problem is not solved, why not,
+        what would a first credible attack look like, and where does VGC sit in
+        that gap?
 \end{enumerate}
 
 The rest of this document is structured as follows.
-Section~\ref{sec:existing_research} reviews the existing research on competitive
-Pok\'{e}mon AI and on similar game-AI systems.
+Section~\ref{sec:existing_research} reviews the existing research on this problem
+class and on similar game-AI systems, including competitive Pok\'{e}mon AI.
 Section~\ref{sec:analysis} analyzes the complexity of the domain, draws out the
 gap that the prior work leaves open, and assesses how feasible it is to close it.
 
