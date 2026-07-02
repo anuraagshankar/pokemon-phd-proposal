@@ -2,16 +2,7 @@ CLAUDE.md
 .claude/
 resources/
 
-# LaTeX build artifacts
-*.aux
-*.log
-*.out
-*.toc
-*.bbl
-*.blg
-*.fls
-*.fdb_latexmk
-*.synctex.gz
-*.pdf
+# LaTeX build artifacts (all compiled output lives in build/)
+build/
 
 .DS_Store
