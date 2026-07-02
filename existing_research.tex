@@ -7,30 +7,125 @@
 \section{Existing Research}
 \label{sec:existing_research}
 
-This section surveys the work that a study of competitive Pok\'{e}mon AI must
-build on. It is a literature review only: it reports what has been done and what
-each system demonstrates, and it leaves the question of what remains undone to
-the analysis in Section~\ref{sec:analysis}. The survey is in four parts:
+This section surveys the work that a study of bilevel games with hard inner
+equilibria must build on. It is a literature review only: it reports what has been
+done and what each system demonstrates, and it leaves the question of what remains
+undone to the analysis in Section~\ref{sec:analysis}. The survey is in three
+parts:
 
 \begin{enumerate}
-  \item the shared infrastructure on which recent work depends;
-  \item the state of the art in competitive Pok\'{e}mon \emph{singles};
-  \item the smaller body of work that targets the VGC \emph{doubles} format
-        directly; and
-  \item landmark AI systems for analogous games.
+  \item the literature on bilevel and Stackelberg games and the renowned open
+        problems that share this structure, which locates the problem class;
+  \item work on competitive Pok\'{e}mon, the primary application, covering both
+        the shared research infrastructure and the state of the art in play; and
+  \item landmark AI systems for analogous games, grouped by the strategic pillars
+        they exercise.
 \end{enumerate}
 
-The first three parts are presented as summary tables below; per-system detail is
-given in Appendix~\ref{sec:appendix_prior_work}.
-
-One distinction runs through the whole survey and is worth stating at the outset.
-Competitive Pok\'{e}mon is played in two formats, singles and doubles, and the
-two are studied very unevenly. The format of each system is therefore recorded
-explicitly, because it is the fact that most shapes how the prior work bears on a
-VGC study.
+Per-system detail for the Pok\'{e}mon work is given in
+Appendix~\ref{sec:appendix_prior_work}.
 
 \clearpage
-\subsection{Research Infrastructure}
+\subsection{Bilevel Games with Hard Inner Equilibria}
+\label{subsec:bilevel_lit}
+
+The problem class this study addresses, an outer decision whose payoff is the
+value of an inner game, is not new in itself; it is studied as bilevel or
+Stackelberg optimization, and several renowned open problems share its
+structure~\cite{zhang2023bilevel}. Table~\ref{tab:bilevel} lists the anchor
+references. The column that matters most is the inner problem: in the
+best-understood cases it is \emph{tractable} (a unique, cheap best response),
+whereas the case this study targets has a \emph{hard} inner problem, a
+mixed-strategy equilibrium of an imperfect-information, stochastic, long-horizon
+game. This part of the survey is a starting point and will be expanded.
+
+\begin{table}[ht]
+\small
+\tablespacing
+\begin{tabularx}{\textwidth}{@{}>{\hsize=0.62\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.05\hsize\raggedright\arraybackslash}X
+                                >{\hsize=0.60\hsize\raggedright\arraybackslash}X
+                                >{\hsize=1.73\hsize\raggedright\arraybackslash}X@{}}
+\toprule
+\textbf{Work} & \textbf{Problem} & \textbf{Inner problem} & \textbf{Relation to VGC} \\
+\midrule
+Bilevel optimization survey \cite{zhang2023bilevel}
+  & General bilevel / Stackelberg optimization
+  & Tractable (by assumption)
+  & The framing reference: gives the formal outer/inner structure and restricts to
+    tractable inner problems, drawing the boundary VGC sits outside. \\
+\addlinespace
+Stackelberg security games \cite{tambe2011security}
+  & Defender commits, attacker best-responds
+  & Tractable best response
+  & Renowned, deployed instance (airports, air marshals); proves the class is real
+    and matters, but the inner response is easy. \\
+\addlinespace
+Adversarial robustness \cite{madry2018towards}
+  & Robust training as min-max
+  & Hard (non-convex maximization)
+  & Hard-inner sibling: outer minimizes over parameters, inner maximizes
+    adversarial loss; min-max is a bilevel special case. \\
+\addlinespace
+Unsupervised environment design \cite{dennis2020emergent}
+  & Design an environment for a learning agent
+  & Hard (an RL equilibrium)
+  & Hard-inner sibling: inner problem is a full RL equilibrium, closest in spirit
+    to VGC's learned inner game. \\
+\bottomrule
+\end{tabularx}
+\caption{The bilevel-games problem class and renowned instances. ``Inner problem''
+distinguishes tractable inner responses from hard inner equilibria.}
+\label{tab:bilevel}
+\end{table}
+
+\paragraph{Bilevel optimization, the framing reference.}
+The survey of bilevel optimization~\cite{zhang2023bilevel} gives the formal
+structure this study uses: an outer problem whose objective depends on the
+solution of an inner problem, and which it explicitly connects to Stackelberg,
+leader-follower, and min-max games. Crucially, it restricts its attention to
+\emph{tractable} inner problems, those with a unique and reasonably cheap
+solution, and notes that dropping this can make even a convex-looking bilevel
+problem intractable. That restriction is exactly the boundary VGC lies beyond,
+which is why the class is the right home for the problem and why VGC is not
+already covered by it.
+
+\paragraph{Stackelberg security games.}
+Security games~\cite{tambe2011security} are the best-known real-world instance of
+the class: a defender commits to a strategy and an attacker best-responds, with
+deployed systems protecting airports and transportation networks. They establish
+that the bilevel structure is a respected, consequential problem rather than a
+Pok\'{e}mon artifact. Their inner problem, the attacker's best response, is
+tractable, so they anchor the class's renown rather than its difficulty.
+
+\paragraph{Adversarial robustness.}
+Robust training~\cite{madry2018towards} poses a saddle-point problem: the outer
+level minimizes over model parameters while the inner level maximizes adversarial
+loss. It is a hard-inner sibling, since the inner maximization is non-convex, and
+it links adversarial machine learning to the bilevel framing because min-max
+optimization is a special case of bilevel optimization.
+
+\paragraph{Unsupervised environment design.}
+Environment design~\cite{dennis2020emergent} makes the outer decision the choice
+of a training environment and the inner problem a reinforcement-learning agent's
+learned behavior in it, with an adversary shaping a curriculum through regret.
+Its inner problem is a full RL equilibrium, which makes it the closest sibling in
+spirit to VGC, where the inner game must likewise be learned rather than solved in
+closed form.
+
+\clearpage
+\subsection{Competitive Pok\'{e}mon (VGC)}
+\label{subsec:vgc_application}
+
+Competitive Pok\'{e}mon is the primary application of this study, and it is the
+sharpest concrete instance of a bilevel game with a hard inner equilibrium. This
+subsection covers the shared research infrastructure and then the state of the art
+in play. One distinction runs throughout: competitive Pok\'{e}mon is played in two
+formats, singles and doubles, and the two are studied very unevenly, so the format
+of each system is recorded explicitly because it most shapes how the prior work
+bears on a VGC study.
+
+\subsubsection{Research Infrastructure}
 \label{subsec:infrastructure}
 
 Nearly all modern Pok\'{e}mon AI research runs on a shared stack: the Pok\'{e}mon
@@ -78,7 +173,7 @@ PokeAgent Challenge \cite{karten2025pokeagent}
 \end{table}
 
 \clearpage
-\subsection{Competitive Pok\'{e}mon Singles: State of the Art}
+\subsubsection{State of the Art: Singles and Doubles}
 \label{subsec:singles}
 
 The strongest published battle results in competitive Pok\'{e}mon are in the
@@ -129,10 +224,6 @@ Earlier self-play / search agents \cite{lee2017showdown}
 \label{tab:singles}
 \end{table}
 
-\clearpage
-\subsection{Dedicated VGC (Doubles) Work}
-\label{subsec:vgc}
-
 A smaller body of work targets the VGC doubles format directly. It is recent,
 dedicated, and thinner than the singles literature, but it includes the most
 important reference point for this study (VGC-Bench). Table~\ref{tab:vgc} records
@@ -181,9 +272,11 @@ game engine from an abstracted Pok\'{e}mon model.}
 \subsection{Analogous Games and Their AI Systems}
 \label{subsec:analogous}
 
-VGC's difficulty comes from five strategic pillars, as set out in
-Section~\ref{sec:introduction}: a structural first pillar and four that make the
-inner battling game hard.
+Having located the problem class and its primary application, we now zoom out to
+the games whose AI systems a VGC study would draw on, grouped by which of VGC's
+strategic pillars each exercises. VGC's difficulty comes from five strategic
+pillars, as set out in Section~\ref{sec:introduction}: a structural first pillar
+and four that make the inner battling game hard.
 
 \begin{enumerate}
   \item the bilevel structure (team building wrapping battling);
@@ -206,7 +299,7 @@ with no outer team-building level, which is the gap developed in
 Section~\ref{sec:analysis}. They are reviewed here as methodological precedent;
 the argument that none of them covers VGC's full combination is developed there.
 
-\subsubsection{(1) Perfect-information self-play}
+\subsubsection{(2) Perfect-information self-play}
 \label{subsubsec:analog_selfplay}
 
 \begin{table}[H]

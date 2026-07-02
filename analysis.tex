@@ -13,22 +13,36 @@
 % noted as [TODO n] against the subsection they now live in.
 %
 % FRAMING DECISION (settled, applies throughout):
-%   Deep RL is the ENGINE; equilibrium-learning-and-generalization is the HEADLINE.
-%   - Plain deep RL (PPO/AlphaZero-style) maximizes reward and, in a guessing
-%     game like VGC, just chases its own tail (rock-paper-scissors cycling). It
-%     does not settle on an unexploitable strategy.
-%   - The fix is still deep RL, but wrapped in equilibrium machinery (DeepNash's
-%     R-NaD, NFSP, PSRO/league). That wrapper is the novel, hard part.
-%   - So we keep all of CLAUDE.md's deep RL, but the THESIS is "learn unexploitable
-%     play that generalizes across teams", not "apply deep RL to VGC". The latter
-%     is near-done but only in the narrowest case: RL already beats a pro in a
-%     SINGLE-TEAM MIRROR MATCH (same one team on BOTH sides, no team diversity).
+%   The OBJECT is a bilevel game with a hard inner equilibrium (team building =
+%   outer; battling = inner). The HEADLINE/contribution is characterizing this
+%   problem class and the gap it opens: classical bilevel/Stackelberg work assumes
+%   a TRACTABLE inner problem (unique, cheap), whereas here the inner "solution" is
+%   a mixed-strategy equilibrium of an imperfect-information, stochastic,
+%   long-horizon game. VGC is the sharpest concrete instance.
+%   METHOD IS OPEN (per CLAUDE.md): we do NOT commit to a solution method. Where a
+%   method is discussed (deep RL wrapped in equilibrium machinery: R-NaD, NFSP,
+%   PSRO/league), it is presented as ONE CANDIDATE inner-loop solver and EVIDENCE
+%   the inner level is attackable, NOT as the thesis.
+%   Why plain reward-maximizing RL is insufficient (rock-paper-scissors cycling)
+%   still holds and motivates the equilibrium solution concept; that is a claim
+%   about the SOLUTION CONCEPT (equilibrium), not a commitment to a solver.
+%   The near-solved narrow case (RL beats a pro in a SINGLE-TEAM MIRROR MATCH;
+%   collapses as teams scale 1->30) motivates why the OUTER/bilevel level is the
+%   real frontier, not the inner battler alone.
 % =============================================================================
 
 % -----------------------------------------------------------------------------
-\subsection{Formalizing VGC as a Game}
+\subsection{Formalizing VGC as a Bilevel Game}
 \label{subsec:formalization}
 % -----------------------------------------------------------------------------
+\paragraph{Two levels.}
+The object we formalize is a bilevel game. The outer level is team building: a
+player chooses a team, and its value is set by how it performs in battle. The
+inner level is battling: playing a fixed pair of teams well. Because the outer
+payoff is the value of the inner game, the two cannot be separated. The paragraphs
+below formalize the inner battling game first, since it is the level a team's
+value ultimately rests on; the outer team-building level, and the coupling between
+them, is developed in Section~\ref{subsec:triviality}.
 % DONE (H) State the formal model explicitly: VGC battling is a partially observable
 %     stochastic game (POSG) with simultaneous moves, not an MDP.
 %     [src: claude_deep_research §8.2; chatgpt_deep_research Stage 1]
@@ -71,17 +85,10 @@ The model is given by the following components~\cite{karten2025pokeagent}:
         that may optionally be shaped to aid training.
 \end{itemize}
 
-\paragraph{One controller or two cooperating agents?}
-The tuple above treats each side as a single controller that issues one joint
-action, which is the simplest faithful model. A side's action, however,
-decomposes into the choices of its two active Pok\'{e}mon, so a side may instead
-be modeled as two cooperating agents that share the same win-or-loss reward and
-must coordinate their moves, for example one Pok\'{e}mon setting up a
-speed-doubling effect or redirecting attacks while the other attacks. Under this
-view VGC is a mixed game: cooperation within a side and competition between the
-two sides. Whether to treat a side as one controller or as two cooperating agents
-is therefore a modeling decision with consequences for the method, and one we
-return to in the analysis that follows.
+We model each side as a single controller that issues one joint action, which is
+the simplest faithful model; whether to instead treat a side's two active
+Pok\'{e}mon as separate cooperating agents is an implementation detail we leave
+open.
 % DONE [TODO 6] (H) Answer the Markov question precisely:
 %     - WITHIN one battle: the full simulator state IS Markov; the player's
 %       OBSERVATION is not -> this is why it is a POSG/POMDP, not an MDP.
@@ -189,14 +196,24 @@ reading, and we do not make it.
 %     AlphaStar is WEAKEST on. [src: vgc_comparison Q2; existing_research tables]
 \paragraph{The axis no benchmark covers.}
 The survey in Section~\ref{sec:existing_research} shows that no solved benchmark
-exercises all four strategic pillars at once. VGC's hard axis is pillar~2 in its
-true form, both players committing blind at the same time, combined with pillar~4,
+exercises all four battle pillars at once. VGC's hard axis is pillar~3 in its
+true form, both players committing blind at the same time, combined with pillar~5,
 genuine randomness. That is the corner of the design space no prior system has
 had to solve. AlphaStar is weakest precisely here: its concurrency is the
-real-time form marked $2^{*}$ in Section~\ref{sec:existing_research}, not blind
-simultaneous commitment, and StarCraft~II carries essentially no pillar-4
+real-time form marked $3^{*}$ in Section~\ref{sec:existing_research}, not blind
+simultaneous commitment, and StarCraft~II carries essentially no pillar-5
 randomness. The most cited ``we beat a hard game'' system is therefore the one
 least equipped for the axis on which VGC is hard~\cite{vinyals2019alphastar}.
+
+\paragraph{Why this generalizes.}
+The gap is not only that no game combines all pillars; it is that the bilevel class
+studied in the literature assumes a tractable inner problem, while VGC's inner
+problem is a hard equilibrium~\cite{zhang2023bilevel}. Progress on the hard-inner
+case therefore speaks to the renowned siblings that share the structure:
+adversarial robustness~\cite{madry2018towards} and environment
+design~\cite{dennis2020emergent} both couple an outer decision to a hard inner
+problem. This is what makes the work matter beyond Pok\'{e}mon: VGC is the
+sharpest instance, not the only beneficiary.
 % DONE (C) Why plain deep RL is not enough here, simply:
 %     - In a guessing game, an agent that just tries to win the most chases its
 %       own tail (spam Rock -> opponent spams Paper -> switch to Scissors ->
@@ -240,28 +257,29 @@ remains the engine, and equilibrium-seeking is what we wrap around it.
 % DONE (A) The result that reframes it (this is the engine-vs-headline point in action):
 %     a deep RL agent ALREADY beats a pro, BUT only in a SINGLE-TEAM MIRROR MATCH
 %     -- both sides run the SAME one team, so the agent never faces team diversity
-%     at all. Performance COLLAPSES once trained on many teams (1 -> 30). So "can
+%     at all. Performance degrades once trained on many teams (1 -> 64). So "can
 %     deep RL win ONE fixed mirror matchup" is basically yes -> that narrow result
 %     cannot be the headline. The open problem is "can it learn play that
 %     GENERALIZES across teams and that opponents cannot EXPLOIT."
 %     [src: VGC-Bench via claude_deep_research §0, §1.1]
-%     [VERIFY before prose: confirm against VGC-Bench (arXiv 2506.10326) that the
-%      pro-beating result is described as a SINGLE-TEAM MIRROR MATCH (same team
-%      both sides) and that the generalization drop is the 1->30-team setting.
-%      Also confirm the exact "1 -> 30" figures. Resource summary says so; the
-%      paper is the source of truth.]
+%     [VERIFIED against VGC-Bench (arXiv 2506.10326v3, Angliss et al. AAMAS 2026):
+%      abstract + §5.4 confirm the pro-beating result is a SINGLE-TEAM MIRROR MATCH;
+%      the expert was Aaron Traylor, agent won 2 of 5 matches (paper calls human
+%      evals "intentionally anecdotal"). Team-set sizes tested are 1, 4, 16, 64
+%      (Tables 2-4), NOT 30 -> corrected to "sixty-four". Agents ~100% exploitable.]
 \paragraph{The triviality risk, and why it does not hold.}
 The serious worry is that the project reduces to engineering: take an existing
 method such as regularized Nash dynamics or counterfactual regret minimization,
 wire it to a Pok\'{e}mon environment, add compute, and report a win rate. That
 would be a strong engineering project, not a PhD. The newest evidence both grants
-the worry and dissolves it. A deep RL agent already defeats a professional VGC
-competitor, but only in a single-team mirror match, the same one team on both
-sides, so it never faces team diversity at all; performance then collapses as the
-number of training teams is scaled from one up to thirty~\cite{angliss2026vgcbench}.
-Winning one fixed mirror matchup is therefore close to solved, and that narrow
-result cannot be the headline. The open problem is play that generalizes across
-teams and that opponents cannot exploit.
+the worry and dissolves it. A deep RL agent already wins matches against a
+professional VGC competitor, but only in a single-team mirror match, the same one
+team on both sides, so it never faces team diversity at all; performance then
+degrades and exploitability rises as the number of training teams is scaled from
+one up to sixty-four~\cite{angliss2026vgcbench}. Winning one fixed mirror matchup
+is therefore close to solved, and that narrow result cannot be the headline. The
+open problem is play that generalizes across teams and that opponents cannot
+exploit.
 % DONE (B) Why exploitability + non-transitivity are the real targets, plainly:
 %     even the strongest agents can be beaten by an opponent that studies them
 %     (exploitable), and strong agents beat each other in circles (A>B>C>A). So
