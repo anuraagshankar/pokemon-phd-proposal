@@ -99,11 +99,20 @@ of game theory at once:
         rock--paper--scissors guessing element. Mechanics like Terastallization
         (an on-command type change, once per battle) turn these blind choices into
         a branching set of outcomes, not a single flat decision.
-  \item \textbf{Imperfect information.} A player acts knowing two unrevealed
-        Pok\'{e}mon wait on the opponent's bench, and that revealed Pok\'{e}mon
-        may carry unexpected moves or items. Open Team Sheets help but do not
-        remove this: lead selection, benched threats, and in-battle plans stay
-        hidden.
+  \item \textbf{Imperfect information.}\footnote{We list imperfect information and
+        simultaneous action selection as separate pillars for exposition, but they
+        are not mutually exclusive. Simultaneous action selection is itself a form
+        of imperfect information: when both players commit at the same time, each
+        acts without knowing the other's current choice, which is exactly a hidden
+        piece of information. Formally, simultaneous-move games reduce to
+        imperfect-information games~\cite{sokota2023stratego}. The two pillars
+        therefore overlap; we keep them distinct only to separate the information
+        hidden \emph{across} turns (bench, movesets) from the information hidden
+        \emph{within} a turn (the opponent's simultaneous choice).} A player acts
+        knowing two unrevealed Pok\'{e}mon wait on the opponent's bench, and that
+        revealed Pok\'{e}mon may carry unexpected moves or items. Open Team Sheets
+        help but do not remove this: lead selection, benched threats, and in-battle
+        plans stay hidden.
   \item \textbf{Probability management.} Move accuracy, secondary effects (e.g.
         status), critical hits, and damage rolls all inject chance. Strong play
         is not avoiding chance but managing it, choosing lines that hold up across

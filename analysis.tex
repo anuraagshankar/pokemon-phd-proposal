@@ -97,28 +97,8 @@ reached. The player's \emph{observation} does not satisfy it, because hidden
 information means a player's belief about the true state depends on the whole
 history of what has been revealed. This is the precise sense in which a battle is
 partially observable, a POMDP from the player's seat, even though the state
-underneath is Markov. A second, more subtle caveat is worth flagging. Even setting
-hidden information aside, a near-identical state can recur within a single battle,
-with everything equal but the remaining Power Points, and an opponent reading
-prior play may choose a different action the second time. The player's decision
-problem \emph{may} therefore be history-dependent, in which case a Markov state for
-that problem would have to include the interaction history rather than the board
-alone. We stress the word may: it remains possible that an agent learns optimal
-play without conditioning on past moves. We raise this as an open caveat, not a
-settled requirement.
+underneath is Markov. 
 
-\paragraph{The Markov question across a set and across matches.}
-The same possible history-dependence reappears over a longer horizon. In a
-best-of-three set, and across a tournament, opponents adapt to prior play, so the
-opponent may behave as a non-stationary part of the environment and the
-single-shot Markov view over one battle may not capture it. If this dependence
-turns out to matter, two natural responses are to lift the unit of analysis to the
-whole best-of-three set, folding the cross-game history into the state, or to carry
-a belief over the opponent's type and model them explicitly. As above, this is a
-contingency to plan for rather than a fact we assert.
-% DONE (H) Note the simultaneous-move consequence: each turn is a matrix game ->
-%     solution concept is a (possibly mixed) equilibrium, not a max-reward action.
-%     Forward-reference subsec:lineage. [src: vgc_comparison Q2]
 \paragraph{The simultaneous-move consequence.}
 Because both players commit their actions at the same time each turn, a single
 turn is not a sequential decision but a simultaneous-move, normal-form game: a
@@ -127,10 +107,14 @@ turn is therefore a possibly mixed, that is randomized, equilibrium rather than 
 single highest-reward action, since any deterministic best response is exploitable
 in a guessing game of this kind~\cite{lanctot2014smmcts}. What machinery produces
 such equilibria is taken up in Section~\ref{subsec:positioning}. The same
-equilibrium logic recurs one level up, at the team-building layer: there is no
-single best team, because for any team a counter-team can be built, so the
-team-level solution is itself an equilibrium, a team (or distribution over teams)
-that balances against the field rather than one that beats everything. We develop
+equilibrium logic may recur one level up, at the team-building layer: there may be
+no single best team, since for any team a counter-team can plausibly be built, in
+which case the team-level solution is itself an equilibrium, a team (or
+distribution over teams) that balances against the field rather than one that
+beats everything. We state this softly on purpose. Whether a single dominant team
+exists is not something we can settle in advance, any more than we can say whether
+there is a single best opening move for White in chess; it is a question to be
+resolved through exploration, not assumed. We develop
 this coupling between team building and battling in
 Section~\ref{subsec:triviality}.
 
